@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Qué tan analógico eres?</title>
+    <style>
+        :root {
+            --sepia: #F5E6C8;
+            --office-blue: #0078D4;
+            --text-dark: #2d2d2d;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--sepia) 0%, #a0c4ff 50%, var(--office-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            color: var(--text-dark);
+            padding: 1rem;
+            padding-top: 2rem;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1100px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #1a1a1a;
+            text-shadow: 0 2px 4px rgba(255,255,255,0.5);
+        }
+
+        #settings-btn {
+            background: white;
+            border: none;
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        #settings-btn:hover { transform: scale(1.1) rotate(15deg); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2); }
+
+        .progress-section {
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .progress-label {
+            font-weight: bold;
+            font-size: 1.05rem;
+            color: #555;
+            min-width: 60px;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .progress-bar-bg {
+            flex-grow: 1;
+            height: 24px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #0078D4, #00a2ff);
+            border-radius: 12px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .milestone-message {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%) translateY(15px);
+            background: #ffca28;
+            color: #333;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            white-space: nowrap;
+            border: 2px solid white;
+            z-index: 101;
+        }
+
+        .milestone-message.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            transition: gap 0.3s;
+        }
+
+        .grid-container.cols-2 { grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 1rem 0.6rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow);
+            user-select: none;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .grid-container.cols-2 .card { padding: 1.5rem 1rem; gap: 0.8rem; border-radius: 20px; }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); }
+        .card:hover::before { opacity: 1; }
+
+        .card.selected {
+            background: var(--office-blue);
+            color: white;
+            border-color: #005a9e;
+            transform: scale(0.98);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .card.selected .emoji-native, .card.selected .emoji-img { filter: brightness(0) invert(1); }
+
+        .emoji-native {
+            font-size: 2.2rem;
+            line-height: 1;
+            transition: transform 0.3s, font-size 0.3s;
+        }
+
+        .emoji-img { width: 36px; height: 36px; transition: transform 0.3s, width 0.3s, height 0.3s; }
+
+        .card-text {
+            font-size: 0.78rem;
+            font-weight: 600;
+            line-height: 1.15;
+            transition: font-size 0.3s;
+        }
+
+        .grid-container.cols-2 .emoji-native { font-size: 3rem; }
+        .grid-container.cols-2 .emoji-img { width: 48px; height: 48px; }
+        .grid-container.cols-2 .card-text { font-size: 0.9rem; line-height: 1.2; }
+
+        /* Botón Finalizar */
+        .finish-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 2.5rem;
+        }
+
+        .finish-btn {
+            padding: 1.1rem 2.5rem;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .finish-btn:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 32px rgba(255, 107, 53, 0.55);
+        }
+
+        .finish-btn:active { transform: translateY(0) scale(0.98); }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            padding: 1rem;
+        }
+
+        .modal.show { display: flex; opacity: 1; }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.show .modal-content { transform: translateY(0); }
+
+        .modal-content h2 { margin-bottom: 1.5rem; color: #333; }
+        .modal-content h3 { color: #444; font-size: 1.05rem; margin-bottom: 0.5rem; }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: bold;
+            color: #0078D4;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+            padding: 0.9rem 1rem;
+            background: #f5f5f5;
+            border-radius: 12px;
+        }
+
+        .setting-item input[type="checkbox"] {
+            width: 20px; height: 20px; cursor: pointer;
+            accent-color: var(--office-blue);
+        }
+
+        .setting-item label { font-weight: 500; cursor: pointer; flex-grow: 1; }
+
+        .column-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+
+        .column-option {
+            padding: 1rem;
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .column-option:hover { background: #eaeaea; }
+        .column-option.active { background: rgba(0, 120, 212, 0.1); border-color: var(--office-blue); color: var(--office-blue); }
+
+        .column-option .col-preview { display: flex; justify-content: center; gap: 4px; margin-bottom: 0.5rem; }
+        .column-option .col-preview span { display: block; width: 10px; height: 20px; background: currentColor; border-radius: 3px; opacity: 0.6; }
+
+        .volume-control {
+            display: flex; flex-direction: column; gap: 0.5rem;
+            padding: 0.9rem 1rem; background: #f5f5f5;
+            border-radius: 12px; margin-bottom: 1rem;
+        }
+
+        .volume-header { display: flex; justify-content: space-between; align-items: center; font-weight: 500; font-size: 0.95rem; }
+        .volume-value { color: var(--office-blue); font-weight: bold; }
+
+        input[type="range"] {
+            width: 100%; height: 6px; border-radius: 3px; background: #ddd;
+            outline: none; -webkit-appearance: none; appearance: none; cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--office-blue); cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: transform 0.15s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--office-blue); cursor: pointer;
+            border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .test-sound-btn {
+            align-self: flex-start;
+            padding: 0.4rem 0.8rem; font-size: 0.85rem;
+            background: white; color: var(--office-blue);
+            border: 1.5px solid var(--office-blue); border-radius: 8px;
+            cursor: pointer; font-weight: 600; transition: all 0.2s;
+        }
+
+        .test-sound-btn:hover { background: var(--office-blue); color: white; }
+
+        .extra-items-list {
+            display: flex; flex-direction: column; gap: 0.8rem;
+            margin-top: 1rem; max-height: 300px; overflow-y: auto; padding-right: 0.5rem;
+        }
+
+        .extra-item {
+            display: flex; align-items: center; gap: 0.8rem;
+            padding: 0.8rem; background: #f9f9f9;
+            border-radius: 8px; border: 1px solid #eee;
+        }
+
+        .extra-item input[type="checkbox"] {
+            width: 18px; height: 18px; cursor: pointer;
+            accent-color: var(--office-blue); flex-shrink: 0;
+        }
+
+        .extra-item span { font-size: 0.9rem; }
+
+        .divider { border: 0; border-top: 1px solid #eee; margin: 1.5rem 0; }
+
+        #close-settings {
+            margin-top: 2rem; width: 100%; padding: 1rem;
+            background: var(--office-blue); color: white;
+            border: none; border-radius: 12px;
+            font-size: 1rem; font-weight: bold; cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #close-settings:hover { background: #005a9e; }
+
+        /* Modal de insignia */
+        #badge-modal .modal-content {
+            background: transparent;
+            box-shadow: none;
+            padding: 0;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #badge-canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: block;
+        }
+
+        .badge-actions { display: flex; gap: 0.8rem; width: 100%; max-width: 500px; }
+
+        .badge-actions button {
+            flex: 1; padding: 0.9rem 1rem;
+            border-radius: 12px; border: none;
+            font-size: 0.95rem; font-weight: bold;
+            cursor: pointer; transition: all 0.2s;
+        }
+
+        #download-badge {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        #download-badge:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(255, 107, 53, 0.55); }
+
+        #close-badge {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+        }
+
+        #close-badge:hover { background: white; }
+
+        @media (max-width: 600px) {
+            .app-container { padding: 1rem; }
+            h1 { font-size: 1.2rem; }
+            .progress-label { font-size: 0.8rem; min-width: 50px; }
+            .milestone-message { font-size: 0.75rem; padding: 0.5rem 1rem; max-width: 90vw; white-space: normal; text-align: center; }
+
+            .grid-container { gap: 0.5rem; }
+            .card { padding: 0.7rem 0.3rem; gap: 0.3rem; border-radius: 12px; }
+            .emoji-native { font-size: 1.7rem; }
+            .emoji-img { width: 28px; height: 28px; }
+            .card-text { font-size: 0.65rem; line-height: 1.1; }
+
+            .grid-container.cols-2 { gap: 0.8rem; }
+            .grid-container.cols-2 .card { padding: 1rem 0.5rem; gap: 0.5rem; }
+            .grid-container.cols-2 .emoji-native { font-size: 2.3rem; }
+            .grid-container.cols-2 .emoji-img { width: 38px; height: 38px; }
+            .grid-container.cols-2 .card-text { font-size: 0.78rem; }
+
+            .finish-btn { font-size: 1rem; padding: 1rem 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1>📼 ¿Qué tan analógico eres?</h1>
+            <button id="settings-btn" title="Configuración">⚙️</button>
+        </header>
+
+        <div class="progress-section">
+            <span class="progress-label">Siglo 20</span>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-label">Hoy</span>
+            <div class="milestone-message" id="milestone-msg"></div>
+        </div>
+
+        <main class="grid-container" id="grid"></main>
+
+        <div class="finish-section">
+            <button class="finish-btn" id="finish-btn">🏁 ¡Ya terminé!</button>
+        </div>
+    </div>
+
+    <!-- Modal de Configuración -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <h2>⚙️ Configuración</h2>
+
+            <div class="section-title">🎨 Apariencia</div>
+            <div class="setting-item">
+                <input type="checkbox" id="remote-emoji">
+                <label for="remote-emoji">Usar emojis remotos (Twemoji CDN)</label>
+            </div>
+
+            <div class="setting-item" style="flex-direction: column; align-items: stretch;">
+                <label style="margin-bottom: 0.6rem;">Columnas del tablero</label>
+                <div class="column-selector">
+                    <div class="column-option" data-cols="2">
+                        <div class="col-preview"><span></span><span></span></div>
+                        2 Columnas
+                    </div>
+                    <div class="column-option active" data-cols="3">
+                        <div class="col-preview"><span></span><span></span><span></span></div>
+                        3 Columnas
+                    </div>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="section-title">🔔 Sonido</div>
+            <div class="setting-item">
+                <input type="checkbox" id="sound-enabled" checked>
+                <label for="sound-enabled">Reproducir sonido al jugar</label>
+            </div>
+
+            <div class="volume-control">
+                <div class="volume-header">
+                    <span>Volumen</span>
+                    <span class="volume-value" id="volume-display">50%</span>
+                </div>
+                <input type="range" id="volume-slider" min="0" max="100" value="50">
+                <button class="test-sound-btn" id="test-sound">🔊 Probar sonido</button>
+            </div>
+
+            <hr class="divider">
+
+            <div class="section-title">📚 Preguntas</div>
+            <h3>Activar o desactivar preguntas</h3>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">Al guardar, el juego se reiniciará para aplicar los cambios.</p>
+
+            <div class="extra-items-list" id="extra-items-list"></div>
+
+            <button id="close-settings">💾 Guardar y Reiniciar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Insignia -->
+    <div class="modal" id="badge-modal">
+        <div class="modal-content">
+            <canvas id="badge-canvas"></canvas>
+            <div class="badge-actions">
+                <button id="download-badge">⬇️ Descargar PNG</button>
+                <button id="close-badge">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // DATOS
+        // ============================================================
+        const allItems = [
+            { id: 1,  chrono: 100,  text: "Me conecté a internet por marcación", emoji: "🖥️", isDefault: true },
+            { id: 2,  chrono: 95,   text: "Usé un módem de 56k",                  emoji: "🖥️", isDefault: true },
+            { id: 3,  chrono: 90,   text: "Escuché música en un CD",              emoji: "💿", isDefault: true },
+            { id: 4,  chrono: 85,   text: "Usé un Discman",                       emoji: "💿", isDefault: true },
+            { id: 5,  chrono: 80,   text: "Tuve un MiniDisc",                     emoji: "💽", isDefault: true },
+            { id: 6,  chrono: 75,   text: "Usé un disquete",                      emoji: "💾", isDefault: true },
+            { id: 7,  chrono: 70,   text: "Envié o recibí un fax",                emoji: "📠", isDefault: true },
+            { id: 8,  chrono: 65,   text: "Renté una película",                   emoji: "🎬", isDefault: true },
+            { id: 9,  chrono: 60,   text: "Escuché música en un cassette",        emoji: "📼", isDefault: true },
+            { id: 10, chrono: 58,   text: "Hice una mixtape",                     emoji: "📼", isDefault: true },
+            { id: 11, chrono: 55,   text: "Grabé música de la radio en cassette", emoji: "📻", isDefault: true },
+            { id: 12, chrono: 53,   text: "Usé un buscapersonas (Beeper)",        emoji: "📟", isDefault: true },
+            { id: 13, chrono: 50,   text: "Escuché música en un Walkman",         emoji: "🎧", isDefault: true },
+            { id: 14, chrono: 48,   text: "Usé un rebobinador de VHS",            emoji: "📼", isDefault: true },
+            { id: 15, chrono: 45,   text: "Usé un tocacintas doble",              emoji: "📼", isDefault: true },
+            { id: 16, chrono: 43,   text: "Vi televisión en un TV de tubo",       emoji: "📺", isDefault: true },
+            { id: 17, chrono: 40,   text: "Jugué en un Atari, Nintendo o Sega",   emoji: "🕹️", isDefault: true },
+            { id: 18, chrono: 38,   text: "Estéreo de auto con casetes",          emoji: "🚗", isDefault: true },
+            { id: 19, chrono: 35,   text: "Tomé fotos con cámara de rollo",       emoji: "📷", isDefault: true },
+            { id: 20, chrono: 33,   text: "Usé una cámara Polaroid",              emoji: "📸", isDefault: true },
+            { id: 21, chrono: 30,   text: "Usé una máquina de escribir",          emoji: "⌨️", isDefault: true },
+            { id: 22, chrono: 28,   text: "Usé un ecualizador gráfico",           emoji: "📻", isDefault: true },
+            { id: 23, chrono: 25,   text: "Control remoto con cable",             emoji: "📺", isDefault: true },
+            { id: 24, chrono: 23,   text: "Leí el TV Guide",                      emoji: "📺", isDefault: true },
+            { id: 25, chrono: 20,   text: "Escuché un disco de vinilo",           emoji: "🎵", isDefault: true },
+            { id: 26, chrono: 18,   text: "Arranqué un auto con llave física",    emoji: "🔑", isDefault: true },
+            { id: 27, chrono: 15,   text: "Usé un teléfono de disco",             emoji: "☎️", isDefault: true },
+            { id: 28, chrono: 13,   text: "Usé una calculadora con rollo",        emoji: "🖩", isDefault: true },
+            { id: 29, chrono: 12,   text: "Usé un tarjetero Rolodex",             emoji: "📇", isDefault: true },
+            { id: 30, chrono: 10,   text: "Vi diapositivas en un proyector",      emoji: "📽️", isDefault: true },
+            { id: 31, chrono: 9,    text: "Usé una guía telefónica",              emoji: "📖", isDefault: true },
+            { id: 32, chrono: 8,    text: "Usé un teléfono público con monedas",  emoji: "☎️", isDefault: true },
+            { id: 33, chrono: 7,    text: "Tuve un diccionario",                  emoji: "📚", isDefault: true },
+            { id: 34, chrono: 6,    text: "Tuve una enciclopedia",                emoji: "📕", isDefault: true },
+            { id: 35, chrono: 5,    text: "Tuve una chequera",                    emoji: "💳", isDefault: true },
+            { id: 36, chrono: 4,    text: "Usé una agenda de direcciones",        emoji: "📔", isDefault: true },
+            { id: 37, chrono: 3,    text: "Usé un mapa de papel",                 emoji: "🗺️", isDefault: true },
+            { id: 38, chrono: 2,    text: "Envié un postal",                      emoji: "✉️", isDefault: true },
+            { id: 39, chrono: 1.5,  text: "Escribí una carta a mano",             emoji: "✉️", isDefault: true },
+            { id: 40, chrono: 1,    text: "Usé papel carbón",                     emoji: "📄", isDefault: true },
+            { id: 41, chrono: 0.8,  text: "Usé un reloj despertador de cuerda",   emoji: "⏰", isDefault: true },
+            { id: 42, chrono: 0.6,  text: "Usé una brújula",                      emoji: "🧭", isDefault: true },
+            { id: 43, chrono: 0.4,  text: "Bajé la ventanilla con manivela",      emoji: "🚗", isDefault: true }
+        ];
+
+        // ============================================================
+        // HITOS: Mensajes que aparecen bajo la barra (versión divertida)
+        // ============================================================
+        const milestones = {
+            1:  "¿Acabas de nacer? 👶",
+            3:  "Apenas un bebé digital 🍼",
+            5:  "Casi todo es nuevo para ti 📱",
+            7:  "Un pie en el pasado 👣",
+            9:  "Cayendo en la madriguera 🐇",
+            11: "Modo Retro Activado 🕶️",
+            13: "Eres un Millennial de pura cepa 💾",
+            15: "Generación X en el cuerpo 📼",
+            17: "¡Sobreviviste al Y2K! 🎆",
+            19: "Nacido en los 80s 🕹️",
+            21: "Fan de lo clásico 📻",
+            23: "¿Eres un viajero del tiempo? 🚀",
+            25: "Oficialmente un Boomer 👴",
+            27: "Guardían del pasado 🛡️",
+            29: "Casi una máquina de vapor 🚂",
+            31: "Por poco y funcionas a carbón ⚙️",
+            33: "Hueles a naftalina 🧴",
+            35: "El último de su especie 🦖",
+            37: "Coleccionista de antigüedades 🏺",
+            39: "Vives en un museo 🏛️",
+            41: "Fósil viviente 🦴",
+            43: "El padre del tiempo ⏳"
+        };
+
+        // ============================================================
+        // NIVELES / INSIGNIA (11 tiers según puntaje)
+        // ============================================================
+        const tiers = [
+            { min: 0,  max: 3,  name: "Bebé Digital",             emoji: "🍼", color1: "#4A90D9", color2: "#1F3F66", phrase: "Apenas mojaste los pies en el pasado." },
+            { min: 4,  max: 8,  name: "Aprendiz Moderno",         emoji: "📱", color1: "#5BB9E0", color2: "#2C7A99", phrase: "Vives en el presente, sin culpa." },
+            { min: 9,  max: 13, name: "Tocando la Nostalgia",     emoji: "🎞️", color1: "#9B59B6", color2: "#5B2C6F", phrase: "Algo de esto te suena de la infancia." },
+            { min: 14, max: 18, name: "Nostálgico Profesional",   emoji: "📻", color1: "#E67E22", color2: "#A04000", phrase: "Tienes una colección secreta de cintas." },
+            { min: 19, max: 23, name: "Cazador de Reliquias",     emoji: "🔍", color1: "#16A085", color2: "#0B5345", phrase: "Buscas tesoros en mercados de pulgas." },
+            { min: 24, max: 28, name: "Casi una Máquina de Vapor", emoji: "🚂", color1: "#D35400", color2: "#78281F", phrase: "Poco te falta para funcionar a carbón." },
+            { min: 29, max: 33, name: "Funciona a Carbón",        emoji: "⚙️", color1: "#7F8C8D", color2: "#2C3E50", phrase: "Todavía hueles a naftalina, pero con orgullo." },
+            { min: 34, max: 37, name: "Reliquia Andante",         emoji: "🏺", color1: "#B7950B", color2: "#7D6608", phrase: "Los arqueólogos te llamarían 'objeto de estudio'." },
+            { min: 38, max: 40, name: "Fósil con WiFi",           emoji: "🦴", color1: "#A0522D", color2: "#5C2E0C", phrase: "Increíble que aún te conectes, siendo un fósil." },
+            { min: 41, max: 42, name: "Vives en un Museo",        emoji: "🏛️", color1: "#8E44AD", color2: "#4A235A", phrase: "Deberían exhibirte en una vitrina iluminada." },
+            { min: 43, max: 43, name: "El Padre del Tiempo",      emoji: "⏳", color1: "#F1C40F", color2: "#7D6608", phrase: "Has visto todas las épocas. Eres leyenda viva." }
+        ];
+
+        function getTier(score) {
+            return tiers.find(t => score >= t.min && score <= t.max) || tiers[0];
+        }
+
+        function getStarCount(score, total) {
+            if (total === 0) return 1;
+            const ratio = score / total;
+            return Math.max(1, Math.min(5, Math.ceil(ratio * 5)));
+        }
+
+        // ============================================================
+        // ESTADO
+        // ============================================================
+        let activeItemIds = new Set(allItems.filter(i => i.isDefault).map(i => i.id));
+        let selectedItems = new Set();
+        let useRemoteEmojis = false;
+        let soundEnabled = true;
+        let soundVolume = 50;
+        let gridColumns = 3; // POR DEFECTO 3 COLUMNAS
+        let lastMilestoneCount = 0;
+
+        // ============================================================
+        // DOM
+        // ============================================================
+        const gridContainer = document.getElementById('grid');
+        const progressFill = document.getElementById('progress-fill');
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsBtn = document.getElementById('close-settings');
+        const remoteEmojiCheckbox = document.getElementById('remote-emoji');
+        const extraItemsList = document.getElementById('extra-items-list');
+        const milestoneMsg = document.getElementById('milestone-msg');
+        const soundEnabledCheckbox = document.getElementById('sound-enabled');
+        const volumeSlider = document.getElementById('volume-slider');
+        const volumeDisplay = document.getElementById('volume-display');
+        const testSoundBtn = document.getElementById('test-sound');
+        const columnOptions = document.querySelectorAll('.column-option');
+        const finishBtn = document.getElementById('finish-btn');
+        const badgeModal = document.getElementById('badge-modal');
+        const badgeCanvas = document.getElementById('badge-canvas');
+        const downloadBadgeBtn = document.getElementById('download-badge');
+        const closeBadgeBtn = document.getElementById('close-badge');
+
+        // ============================================================
+        // AUDIO
+        // ============================================================
+        let audioContext = null;
+
+        function getAudioContext() {
+            if (!audioContext) {
+                try { audioContext = new (window.AudioContext || window.webkitAudioContext)(); }
+                catch (e) { console.warn("Web Audio API no soportada"); return null; }
+            }
+            if (audioContext.state === 'suspended') audioContext.resume();
+            return audioContext;
+        }
+
+        const bellConfigs = {
+            bell1: { freqs: [880, 1760, 2640], decay: 0.9, type: 'sine',     amp: [0.5, 0.2, 0.1] },
+            bell2: { freqs: [1046.5, 2093, 3135], decay: 0.7, type: 'sine',   amp: [0.5, 0.25, 0.1] },
+            bell3: { freqs: [1318.5, 1975, 2637], decay: 1.1, type: 'triangle', amp: [0.45, 0.2, 0.15] },
+            bell4: { freqs: [587.33, 1174.66, 1761], decay: 0.8, type: 'sine', amp: [0.55, 0.2, 0.1] },
+            bell5: { freqs: [1567.98, 2351.97, 3135.96], decay: 0.55, type: 'triangle', amp: [0.4, 0.25, 0.15] }
+        };
+
+        function playBell(configKey, volumePercent) {
+            const ctx = getAudioContext();
+            if (!ctx) return;
+            const config = bellConfigs[configKey] || bellConfigs.bell1;
+            const now = ctx.currentTime;
+            const masterGain = ctx.createGain();
+            masterGain.gain.value = Math.max(0, Math.min(1, volumePercent / 100));
+            masterGain.connect(ctx.destination);
+
+            config.freqs.forEach((freq, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = config.type;
+                osc.frequency.value = freq;
+                const amp = config.amp[i] || 0.1;
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(amp, now + 0.008);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + config.decay);
+                osc.connect(gain);
+                gain.connect(masterGain);
+                osc.start(now);
+                osc.stop(now + config.decay + 0.1);
+            });
+        }
+
+        function playRandomBell() {
+            if (!soundEnabled) return;
+            const keys = Object.keys(bellConfigs);
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            playBell(randomKey, soundVolume);
+        }
+
+        // ============================================================
+        // UTILIDADES
+        // ============================================================
+        function getTwemojiUrl(emoji) {
+            let codePoints = [];
+            for (let i = 0; i < emoji.length; i++) {
+                let code = emoji.codePointAt(i).toString(16);
+                if (code !== 'fe0f') codePoints.push(code);
+                if (emoji.codePointAt(i) > 0xffff) i++;
+            }
+            return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${codePoints.join('-')}.svg`;
+        }
+
+        function renderEmoji(emoji) {
+            if (useRemoteEmojis) {
+                return `<img src="${getTwemojiUrl(emoji)}" alt="${emoji}" class="emoji-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <span class="emoji-native" style="display:none;">${emoji}</span>`;
+            }
+            return `<span class="emoji-native">${emoji}</span>`;
+        }
+
+        function getSortedActiveItems() {
+            return allItems.filter(item => activeItemIds.has(item.id)).sort((a, b) => b.chrono - a.chrono);
+        }
+
+        // ============================================================
+        // RENDER
+        // ============================================================
+        function renderGrid() {
+            const items = getSortedActiveItems();
+            gridContainer.innerHTML = '';
+            gridContainer.classList.toggle('cols-2', gridColumns === 2);
+
+            items.forEach(item => {
+                const isSelected = selectedItems.has(item.id);
+                const card = document.createElement('div');
+                card.className = `card ${isSelected ? 'selected' : ''}`;
+                card.dataset.id = item.id;
+                card.innerHTML = `${renderEmoji(item.emoji)}<span class="card-text">${item.text}</span>`;
+                card.addEventListener('click', () => toggleItem(item.id));
+                gridContainer.appendChild(card);
+            });
+            updateProgress();
+        }
+
+        function toggleItem(id) {
+            if (selectedItems.has(id)) selectedItems.delete(id);
+            else selectedItems.add(id);
+            playRandomBell();
+            const card = document.querySelector(`.card[data-id="${id}"]`);
+            if (card) card.classList.toggle('selected');
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const total = getSortedActiveItems().length;
+            const selected = selectedItems.size;
+            const percentage = total === 0 ? 100 : ((total - selected) / total) * 100;
+            progressFill.style.width = `${percentage}%`;
+
+            if (selected > lastMilestoneCount && milestones[selected]) showMilestone(milestones[selected]);
+            lastMilestoneCount = selected;
+        }
+
+        function showMilestone(text) {
+            milestoneMsg.textContent = text;
+            milestoneMsg.classList.add('show');
+            setTimeout(() => milestoneMsg.classList.remove('show'), 2500);
+        }
+
+        function resetGame() {
+            selectedItems.clear();
+            lastMilestoneCount = 0;
+            renderGrid();
+        }
+
+        // ============================================================
+        // SETTINGS
+        // ============================================================
+        function renderExtraItemsSettings() {
+            const sortedForSettings = [...allItems].sort((a, b) => b.chrono - a.chrono);
+            extraItemsList.innerHTML = '';
+            sortedForSettings.forEach(item => {
+                const isActive = activeItemIds.has(item.id);
+                const div = document.createElement('div');
+                div.className = 'extra-item';
+                div.innerHTML = `<input type="checkbox" id="extra-${item.id}" ${isActive ? 'checked' : ''}><span>${item.emoji} ${item.text}</span>`;
+                div.querySelector('input').addEventListener('change', (e) => {
+                    if (e.target.checked) activeItemIds.add(item.id);
+                    else { activeItemIds.delete(item.id); selectedItems.delete(item.id); }
+                });
+                extraItemsList.appendChild(div);
+            });
+        }
+
+        function updateColumnSelectorUI() {
+            columnOptions.forEach(opt => {
+                opt.classList.toggle('active', parseInt(opt.dataset.cols) === gridColumns);
+            });
+        }
+
+        // ============================================================
+        // INSIGNIA (Canvas)
+        // ============================================================
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function drawBadge(score, total) {
+            const W = 800, H = 1060;
+            badgeCanvas.width = W;
+            badgeCanvas.height = H;
+            const ctx = badgeCanvas.getContext('2d');
+            const tier = getTier(score);
+            const stars = getStarCount(score, total);
+
+            // Fondo con degradado
+            const bg = ctx.createLinearGradient(0, 0, W, H);
+            bg.addColorStop(0, tier.color1);
+            bg.addColorStop(1, tier.color2);
+            ctx.fillStyle = bg;
+            roundRect(ctx, 0, 0, W, H, 40);
+            ctx.fill();
+
+            // Patrón de puntitos sutiles
+            ctx.save();
+            roundRect(ctx, 0, 0, W, H, 40);
+            ctx.clip();
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.07)';
+            for (let x = 40; x < W; x += 60) {
+                for (let y = 40; y < H; y += 60) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.restore();
+
+            // Borde decorativo interior
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.lineWidth = 3;
+            roundRect(ctx, 25, 25, W - 50, H - 50, 25);
+            ctx.stroke();
+
+            // Texto superior
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+            ctx.font = 'bold 22px "Segoe UI", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('★ CERTIFICADO OFICIAL ★', W / 2, 90);
+
+            // Título
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 32px "Segoe UI", sans-serif';
+            ctx.fillText('¿QUÉ TAN ANALÓGICO ERES?', W / 2, 140);
+
+            // Emoji grande en círculo
+            ctx.save();
+            const emojiCircleY = 320;
+            const emojiGrad = ctx.createRadialGradient(W / 2, emojiCircleY, 20, W / 2, emojiCircleY, 160);
+            emojiGrad.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+            emojiGrad.addColorStop(1, 'rgba(255, 255, 255, 0.08)');
+            ctx.fillStyle = emojiGrad;
+            ctx.beginPath();
+            ctx.arc(W / 2, emojiCircleY, 160, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.restore();
+
+            ctx.font = '170px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(tier.emoji, W / 2, emojiCircleY + 8);
+            ctx.textBaseline = 'alphabetic';
+
+            // Nombre del tier
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 52px "Segoe UI", sans-serif';
+            ctx.fillText(tier.name.toUpperCase(), W / 2, 580);
+
+            // Frase
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+            ctx.font = 'italic 24px "Segoe UI", sans-serif';
+            wrapText(ctx, `"${tier.phrase}"`, W / 2, 630, W - 120, 32);
+
+            // Caja de puntaje
+            const boxW = 400, boxH = 100, boxX = (W - boxW) / 2, boxY = 730;
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+            roundRect(ctx, boxX, boxY, boxW, boxH, 20);
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 2;
+            roundRect(ctx, boxX, boxY, boxW, boxH, 20);
+            ctx.stroke();
+
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 46px "Segoe UI", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${score} / ${total}`, W / 2, boxY + 62);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+            ctx.font = '600 14px "Segoe UI", sans-serif';
+            ctx.fillText('COSAS ANALÓGICAS QUE USÉ', W / 2, boxY + 88);
+
+            // Estrellas
+            const starY = 890;
+            const starSpacing = 60;
+            const totalStarWidth = (5 - 1) * starSpacing;
+            const startX = W / 2 - totalStarWidth / 2;
+            for (let i = 0; i < 5; i++) {
+                const filled = i < stars;
+                ctx.font = '50px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+                ctx.globalAlpha = filled ? 1 : 0.25;
+                ctx.fillText(filled ? '⭐' : '☆', startX + i * starSpacing, starY);
+            }
+            ctx.globalAlpha = 1;
+
+            // Pie de página
+            const today = new Date();
+            const fecha = today.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            ctx.font = '600 16px "Segoe UI", sans-serif';
+            ctx.fillText(`Emitido el ${fecha}`, W / 2, H - 60);
+            ctx.font = 'bold 18px "Segoe UI", sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillText('📼  ¿Qué tan analógico eres?  📼', W / 2, H - 30);
+        }
+
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            const lines = [];
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+                    lines.push(line.trim());
+                    line = words[n] + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line.trim());
+
+            const startY = y - ((lines.length - 1) * lineHeight) / 2;
+            lines.forEach((l, i) => ctx.fillText(l, x, startY + i * lineHeight));
+        }
+
+        function showBadge() {
+            const total = getSortedActiveItems().length;
+            const score = selectedItems.size;
+            drawBadge(score, total);
+            badgeModal.classList.add('show');
+        }
+
+        // ============================================================
+        // EVENTOS
+        // ============================================================
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('show');
+            renderExtraItemsSettings();
+            updateColumnSelectorUI();
+        });
+
+        closeSettingsBtn.addEventListener('click', () => {
+            settingsModal.classList.remove('show');
+            resetGame();
+        });
+
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.classList.remove('show');
+                resetGame();
+            }
+        });
+
+        remoteEmojiCheckbox.addEventListener('change', (e) => {
+            useRemoteEmojis = e.target.checked;
+            renderGrid();
+        });
+
+        columnOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                gridColumns = parseInt(opt.dataset.cols);
+                updateColumnSelectorUI();
+                renderGrid();
+            });
+        });
+
+        soundEnabledCheckbox.addEventListener('change', (e) => {
+            soundEnabled = e.target.checked;
+            if (soundEnabled) { getAudioContext(); playRandomBell(); }
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            soundVolume = parseInt(e.target.value);
+            volumeDisplay.textContent = `${soundVolume}%`;
+        });
+
+        volumeSlider.addEventListener('change', () => {
+            if (soundEnabled && soundVolume > 0) { getAudioContext(); playRandomBell(); }
+        });
+
+        testSoundBtn.addEventListener('click', () => {
+            getAudioContext();
+            const keys = Object.keys(bellConfigs);
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            playBell(randomKey, soundVolume);
+        });
+
+        finishBtn.addEventListener('click', showBadge);
+
+        closeBadgeBtn.addEventListener('click', () => badgeModal.classList.remove('show'));
+
+        badgeModal.addEventListener('click', (e) => {
+            if (e.target === badgeModal) badgeModal.classList.remove('show');
+        });
+
+        downloadBadgeBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = `insignia-analogica-${Date.now()}.png`;
+            link.href = badgeCanvas.toDataURL('image/png');
+            link.click();
+        });
+
+        // ============================================================
+        // INICIALIZACIÓN
+        // ============================================================
+        renderGrid();
+
+    </script>
+</body>
+</html>
